@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHIS Payments Live Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 11h8"></path><path d="M12 7v8"></path></svg>
+                </span>
+                <h2>NHIS Monitor</h2>
+            </div>
+            
+            <div class="settings">
+                <h3>Settings</h3>
+                <label class="toggle-container">
+                    <input type="checkbox" id="autoRefresh" checked>
+                    <span class="toggle-label">Auto-Refresh</span>
+                </label>
+                
+                <div class="slider-container">
+                    <label for="refreshRate">Refresh Interval (seconds): <span id="rateValue">5</span></label>
+                    <input type="range" id="refreshRate" min="2" max="30" value="5">
+                </div>
+            </div>
+
+            <div class="status-indicator">
+                <div class="dot pulsing"></div>
+                <span id="connectionStatus">Connecting to API...</span>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div id="scraperStatusBanner" class="status-banner">
+                <div class="banner-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg>
+                </div>
+                <div class="banner-content">
+                    <h4 id="statusAction">Scraper Status</h4>
+                    <p id="statusProgress">Waiting for connection...</p>
+                </div>
+            </div>
+
+            <header>
+                <div>
+                    <h1>NHIS Payments Live Dashboard</h1>
+                    <p style="color: var(--text-muted);">Monitor the scraper's real-time progress across all districts.</p>
+                    <div class="info-alert" style="margin-top: 1rem; display: flex; align-items: flex-start; gap: 0.75rem; background-color: #f1f5f9; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.875rem;">
+                        <svg style="flex-shrink: 0; color: #3b82f6;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span style="color: #334155;"><strong>Why so many "Unknown" districts?</strong> The official NHIS website contains thousands of corrupted Excel rows marked as <code>#REF!</code>. We preserve these valid payments in our database but label the missing districts as "Unknown".</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Total Records Scraped</div>
+                    <div class="metric-value" id="valRecords">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Amount Paid (GHS)</div>
+                    <div class="metric-value" id="valAmount">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Unique Districts</div>
+                    <div class="metric-value" id="valDistricts">--</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h2>Top 10 Districts by Record Count</h2>
+                    <div class="canvas-wrapper">
+                        <canvas id="countChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h2>Top 10 Districts by Amount Paid</h2>
+                    <div class="canvas-wrapper">
+                        <canvas id="amountChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Scraped Entries Database</h2>
+                    <div class="table-actions">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search facilities or districts...">
+                        </div>
+                        <button id="btnExport" class="btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="sortable" data-sort="Facility Name">Facility Name <span class="sort-icon"></span></th>
+                                <th class="sortable" data-sort="District">District <span class="sort-icon"></span></th>
+                                <th class="sortable" data-sort="Amount Paid Numeric">Amount Paid <span class="sort-icon"></span></th>
+                                <th>Claim Month</th>
+                                <th>Payment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-controls">
+                    <button id="btnPrev" class="btn-page" disabled>Previous</button>
+                    <span id="pageIndicator">Page 1 of 1</span>
+                    <button id="btnNext" class="btn-page" disabled>Next</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
