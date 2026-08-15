@@ -37,7 +37,7 @@ This project consists of three main components:
 
 Check out the live scraping and dashboard rendering in action:
 
-<video src="./demo.mp4" controls width="100%"></video>
+![Demo](./demo.gif)
 
 ## Setup & Local Development
 
