@@ -2,5 +2,3 @@ selenium
 pandas
 rich
 webdriver-manager
-streamlit
-tenacity
