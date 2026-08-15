@@ -187,29 +187,42 @@ def scrape_data(headless=False, force_restart=False):
                 save_checkpoint(current_page + 1)
 
                 # Click Next button
-                try:
-                    next_btn = driver.find_element(By.CSS_SELECTOR, "button.rgPageNext[title='Next Page']")
+                max_retries = 3
+                success = False
+                for attempt in range(max_retries):
+                    try:
+                        next_btn = driver.find_element(By.CSS_SELECTOR, "button.rgPageNext[title='Next Page']")
 
-                    if "disabled" in next_btn.get_attribute("class"):
-                        console.print("\n[bold green]Reached last page. Scraping complete![/bold green]")
-                        if os.path.exists(CHECKPOINT_FILE):
-                            os.remove(CHECKPOINT_FILE)
-                        break
+                        if "disabled" in next_btn.get_attribute("class"):
+                            console.print("\n[bold green]Reached last page. Scraping complete![/bold green]")
+                            if os.path.exists(CHECKPOINT_FILE):
+                                os.remove(CHECKPOINT_FILE)
+                            success = True # not an error
+                            break
 
-                    # Use Javascript to click to avoid ElementClickInterceptedException from overlays
-                    driver.execute_script("arguments[0].click();", next_btn)
+                        # Use Javascript to click to avoid ElementClickInterceptedException from overlays
+                        driver.execute_script("arguments[0].click();", next_btn)
 
-                    # Wait for new page to load
-                    wait.until(EC.staleness_of(table))
-                    current_page += 1
-                    time.sleep(0.5)
+                        # Wait for new page to load
+                        wait.until(EC.staleness_of(table))
+                        current_page += 1
+                        time.sleep(0.5)
+                        success = True
+                        break # Success, break out of retry loop
 
-                except NoSuchElementException:
-                    console.print("\n[yellow]Next button not found. Ending scrape.[/yellow]")
-                    break
-                except Exception as e:
-                    error_msg = str(e).encode('ascii', 'ignore').decode('ascii')
-                    console.print(f"\n[red]Error clicking next button: {error_msg}[/red]")
+                    except NoSuchElementException:
+                        console.print("\n[yellow]Next button not found. Ending scrape.[/yellow]")
+                        break # Break retry loop
+                    except Exception as e:
+                        if attempt == max_retries - 1:
+                            error_msg = str(e).encode('ascii', 'ignore').decode('ascii')
+                            console.print(f"\n[red]Error clicking next button after {max_retries} attempts: {error_msg}[/red]")
+                            break
+                        console.print(f"\n[yellow]Retry {attempt + 1}/{max_retries} clicking next button...[/yellow]")
+                        time.sleep(2)
+                
+                # If we exhausted retries and didn't succeed, we need to break the outer loop
+                if not success:
                     break
 
     except Exception as e:

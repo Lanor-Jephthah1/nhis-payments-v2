@@ -1,4 +1,5 @@
-const API_BASE = 'https://nutrition-reflections-caps-millennium.trycloudflare.com';
+const API_BASE = 'https://ours-personality-reasonably-edited.trycloudflare.com';
+const ITEMS_PER_PAGE = 20;
 const API_URL = `${API_BASE}/api/data`;
 // DOM Elements
 const valRecords = document.getElementById('valRecords');

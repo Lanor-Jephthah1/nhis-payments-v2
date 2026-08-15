@@ -16,8 +16,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-CSV_PATH = r"C:\Users\Jephthah Kwame Lanor\Desktop\nhis\Lanor-Jephthah1-nhis-payments-scraper-edb31c8\nhis_payments_v2.csv"
-STATUS_PATH = r"C:\Users\Jephthah Kwame Lanor\Desktop\nhis\Lanor-Jephthah1-nhis-payments-scraper-edb31c8\scraper_status.json"
+# Paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CSV_PATH = os.path.join(BASE_DIR, "scraper", "nhis_payments_v2.csv")
+STATUS_PATH = os.path.join(BASE_DIR, "scraper", "scraper_status.json")
 
 @app.get("/api/status")
 def get_scraper_status():

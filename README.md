@@ -1,69 +1,75 @@
-# NHIS Payments Tracker (Version 2)
+# NHIS Payments Tracker v2
 
-A robust, full-stack application designed to automatically scrape, process, and visualize payment data from the Ghana National Health Insurance Scheme (NHIS) portal.
+A robust, full-stack data pipeline and visualization dashboard for tracking National Health Insurance Scheme (NHIS) payments across districts in Ghana.
 
 ## Architecture
 
-This project is divided into two primary components:
+This project consists of three main components:
 
-1. **Scraper Engine (`/scraper`)**
-   - Built with Python and Selenium WebDriver.
-   - Bypasses ASP.NET strict-mode protections to achieve high-speed pagination skipping via JavaScript injection.
-   - Resilient state-machine design capable of recovering from network failures.
-   - Outputs structured data into CSV format and maintains a live `scraper_status.json` file for real-time monitoring.
+1. **Selenium Scraper (`/scraper`)**
+   - **Language:** Python
+   - **Framework:** Selenium WebDriver
+   - **Features:** 
+     - Automated headless browsing of the official NHIS payments portal.
+     - Resilience engineering: Built-in retry mechanisms and staleness checks to handle server-side rate limiting, AJAX timeouts, and Cloudflare overlays.
+     - Checkpoint recovery: Saves progress to `checkpoint.json` allowing the scraper to resume seamlessly after interruptions.
+     - Data sanitization: Automatically cleans corrupted `#REF!` district rows dynamically inserted by the source ASP.NET table.
 
-2. **Web Dashboard (`/webapp`)**
-   - **Backend API**: A high-performance FastAPI server that parses the scraped CSV data, aggregates metrics (Top Districts, Total Payouts), and handles dynamic search, sorting, and pagination.
-   - **Frontend UI**: A responsive, modern interface built with vanilla HTML/CSS/JS. Features live real-time scraper monitoring, data sorting, search filtering, and instant CSV exports.
+2. **Backend REST API (`/webapp/backend`)**
+   - **Language:** Python
+   - **Framework:** FastAPI / Pandas
+   - **Features:**
+     - In-memory Pandas dataframe operations for blazing-fast metric aggregations, sorting, and pagination.
+     - Exposes paginated endpoints for the frontend to consume.
+     - Streams CSV exports directly from memory.
+     - Tunneled securely via Cloudflare (`cloudflared`) to bypass NAT and firewall restrictions for public consumption.
 
-## Key Features
+3. **Frontend Dashboard (`/webapp/frontend`)**
+   - **Language:** HTML / CSS / Vanilla JavaScript
+   - **Frameworks:** Chart.js
+   - **Deployment:** Vercel
+   - **Features:**
+     - Modern, flat-design UI with responsive CSS Grid and Flexbox layouts.
+     - Dynamic Chart.js integration mapping real-time data from the backend tunnel.
+     - Fully optimized Open Graph SEO tags for WhatsApp/Twitter link unfurling.
 
-- **Automated Data Extraction**: Extracts thousands of records systematically without manual intervention.
-- **Real-Time Monitoring**: The dashboard displays live updates on the scraper's progress, including current page, action status, and detailed logs.
-- **Dynamic Data Visualization**: Interactive table with column sorting (Facility Name, District, Amount Paid).
-- **Search & Filtering**: Real-time debounced search across all scraped records.
-- **Data Export**: One-click export of currently filtered data to CSV.
+## Demo
 
-## Getting Started
+Check out the live scraping and dashboard rendering in action:
 
-### Prerequisites
-- Python 3.9+
+<video src="./demo.mp4" controls width="100%"></video>
+
+## Setup & Local Development
+
+### Requirements
+- Python 3.10+
+- Node.js (for Vercel CLI)
 - Google Chrome & ChromeDriver
 
-### Installation
+### Running the Scraper
+```bash
+cd scraper
+python main.py
+```
+This will launch the scraper, generate `nhis_payments_v2.csv`, and track progress in `checkpoint.json`.
 
-1. Install backend and scraper dependencies:
-   ```bash
-   pip install selenium webdriver-manager rich pandas fastapi uvicorn
-   ```
+### Running the API
+```bash
+cd webapp/backend
+pip install fastapi uvicorn pandas
+python main.py
+```
+This will expose the API at `http://127.0.0.1:8000`.
 
-2. Start the FastAPI Backend:
-   ```bash
-   cd webapp/backend
-   python main.py
-   ```
+### Exposing the API publicly (Cloudflare Tunnel)
+```bash
+cd webapp/backend
+cloudflared tunnel --url http://127.0.0.1:8000
+```
+*Note: Update `webapp/frontend/main.js` with the new generated Cloudflare URL.*
 
-3. Launch the Frontend:
-   Serve the `webapp/frontend` directory using any local web server. For example:
-   ```bash
-   cd webapp/frontend
-   python -m http.server 8080
-   ```
-   Access the dashboard at `http://localhost:8080`.
-
-4. Run the Scraper (in a separate terminal):
-   ```bash
-   cd scraper
-   python main.py --headless
-   ```
-
-## Deployment Strategy
-
-For production deployment, the recommended architecture is:
-- **Frontend**: Host the static assets on Vercel or Netlify.
-- **Backend API**: Host the FastAPI server on Render.com.
-- **Scraper Pipeline**: Configure a GitHub Actions cron job to run the scraper periodically and sync the updated CSV data to an AWS S3 bucket.
-
-## License
-
-This project is open-source and available under the MIT License.
+### Running the Frontend
+```bash
+cd webapp/frontend
+npx vercel --prod
+```
