@@ -73,3 +73,16 @@ cloudflared tunnel --url http://127.0.0.1:8000
 cd webapp/frontend
 npx vercel --prod
 ```
+
+## Future Enhancements
+- Dockerize the entire stack for simple one-click deployment.
+- Integrate PostgreSQL to replace the in-memory Pandas dataframe for long-term data persistence.
+- Add cron jobs to fully automate the scraper schedule on a VPS.
+
+## Author
+**Jephthah Kwame Lanor**
+- GitHub: [@Lanor-Jephthah1](https://github.com/Lanor-Jephthah1)
+- Twitter: [@jeff_lanor](https://twitter.com/jeff_lanor)
+
+## License
+This project is open-source and available under the [MIT License](LICENSE).
