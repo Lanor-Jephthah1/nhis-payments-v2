@@ -61,6 +61,9 @@ def save_to_csv(data):
     df = df.dropna(how='all')
     df = df[df[HEADERS[0]].str.strip() != ""]
     
+    if "District" in df.columns:
+        df["District"] = df["District"].replace(['#REF!', '#REF!/'], 'Unknown')
+    
     file_exists = os.path.exists(CSV_FILENAME)
     df.to_csv(CSV_FILENAME, mode='a', header=not file_exists, index=False)
 
