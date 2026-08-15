@@ -66,6 +66,14 @@ def save_to_csv(data):
     
     file_exists = os.path.exists(CSV_FILENAME)
     df.to_csv(CSV_FILENAME, mode='a', header=not file_exists, index=False)
+    
+    # Immediately deduplicate the entire CSV to ensure absolute data integrity
+    try:
+        full_df = pd.read_csv(CSV_FILENAME)
+        full_df.drop_duplicates(inplace=True)
+        full_df.to_csv(CSV_FILENAME, index=False)
+    except Exception as e:
+        pass
 
 @retry(
     stop=stop_after_attempt(3), 
