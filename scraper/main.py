@@ -132,7 +132,7 @@ def fast_forward(driver, wait, target_page):
             time.sleep(0.5)
         except Exception as e:
             console.print(f"[red]Error during fast-forward: {e}[/red]")
-            break
+            raise Exception("Fast-forward failed to reach target page. Aborting to prevent data corruption.")
             
     return current_page
 
