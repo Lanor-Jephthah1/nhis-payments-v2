@@ -44,9 +44,9 @@ def get_dashboard_data(page: int = 1, limit: int = 20, search: str = None, sort_
             df['Amount Paid Numeric'] = df['Amount Paid'].astype(str).str.replace(r'[^\d.]', '', regex=True)
             df['Amount Paid Numeric'] = pd.to_numeric(df['Amount Paid Numeric'], errors='coerce')
             
-        # Clean up corrupted District data
-        if 'District' in df.columns:
-            df['District'] = df['District'].replace('#REF!', 'Unknown')
+        # Clean up corrupted Excel artifacts across all columns
+        # The NHIS source database imported an Excel file with unexpanded columns (########) and broken references (#REF!)
+        df = df.replace(['#REF!', '#REF!/', '########'], 'Unknown')
         
         # Metrics based on ALL data
         total_records = len(df)

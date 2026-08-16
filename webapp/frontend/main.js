@@ -1,4 +1,4 @@
-const API_BASE = 'https://ours-personality-reasonably-edited.trycloudflare.com';
+const API_BASE = 'http://127.0.0.1:8000';
 const ITEMS_PER_PAGE = 20;
 const API_URL = `${API_BASE}/api/data`;
 // DOM Elements
