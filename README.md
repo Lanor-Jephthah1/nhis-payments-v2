@@ -2,13 +2,13 @@
 
 A robust, full-stack data pipeline and visualization dashboard designed to extract, clean, and visualize National Health Insurance Scheme (NHIS) payments across districts in Ghana.
 
-## 🚀 Live Demo
+## Live Demo
 
 Check out the live scraping and dashboard rendering in action:
 
 ![Demo](./demo.gif)
 
-## 🏗️ Architecture
+## Architecture
 
 This project is built with resilience and scalability in mind, separated into three distinct microservices.
 
@@ -41,7 +41,7 @@ The presentation layer hosted on Vercel.
   - **Responsive Design:** Modern, flat-design UI using CSS Grid and Flexbox layouts.
   - **SEO Optimized:** Fully configured Open Graph SEO tags for rich WhatsApp and Twitter link unfurling.
 
-## 🛠️ Setup & Local Development
+## Setup & Local Development
 
 ### Requirements
 - Python 3.10+
@@ -76,15 +76,15 @@ cd webapp/frontend
 npx vercel --prod
 ```
 
-## 🔮 Future Enhancements
+## Future Enhancements
 - Dockerize the entire stack for simple one-click deployment.
 - Integrate PostgreSQL to replace the in-memory Pandas dataframe for long-term data persistence.
 - Add cron jobs to fully automate the scraper schedule on a VPS.
 
-## 👨‍💻 Author
+## Author
 **Jephthah Kwame Lanor**
 - GitHub: [@Lanor-Jephthah1](https://github.com/Lanor-Jephthah1)
 - Twitter: [@jeff_lanor](https://twitter.com/jeff_lanor)
 
-## 📄 License
+## License
 This project is open-source and available under the [MIT License](LICENSE).
