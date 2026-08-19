@@ -8,6 +8,18 @@ Check out the live scraping and dashboard rendering in action:
 
 ![Demo](./demo.gif)
 
+## Data Integrity & The #REF! Issue
+
+During the extraction process, you may notice that some records in the generated CSV contain `#REF!` for the `District` and `Claim Month` fields. This is **not** a scraper bug. 
+
+This corruption originates directly from the official NHIS source database. The NHIS administrators upload their payment data via Microsoft Excel spreadsheets, and broken cell references (`#REF!`) are being blindly imported into their backend and rendered directly on the public ASP.NET WebForms table.
+
+As photographic evidence, here is a screenshot of the official NHIS portal (Page 273, Size 20) actively serving these corrupted rows to the public:
+
+![Official NHIS Source Data Corruption](./evidence_ref_corruption.png)
+
+Our pipeline implements automated sanitization on both the scraper and the backend API to dynamically detect and replace these `#REF!` and `########` string artifacts with "Unknown" to prevent them from crashing or corrupting downstream analytics dashboards.
+
 ## Architecture
 
 This project is built with resilience and scalability in mind, separated into three distinct microservices.
