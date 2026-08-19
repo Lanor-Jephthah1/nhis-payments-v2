@@ -18,7 +18,7 @@ As photographic evidence, here is a screenshot of the official NHIS portal (Page
 
 ![Official NHIS Source Data Corruption](./evidence_ref_corruption.png)
 
-Our pipeline implements automated sanitization on both the scraper and the backend API to dynamically detect and replace these `#REF!` and `########` string artifacts with "Unknown" to prevent them from crashing or corrupting downstream analytics dashboards.
+The pipeline implements automated sanitization on both the scraper and the backend API to dynamically detect and replace these `#REF!` and `########` string artifacts with "Unknown" to prevent them from crashing or corrupting downstream analytics dashboards.
 
 ## Architecture
 
