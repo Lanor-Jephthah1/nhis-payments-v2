@@ -84,7 +84,7 @@ npx vercel --prod
 ## Author
 **Jephthah Kwame Lanor**
 - GitHub: [@Lanor-Jephthah1](https://github.com/Lanor-Jephthah1)
-- Linkedin: [@Jephthah Kwame Lanor]([https://twitter.com/jeff_lanor](https://www.linkedin.com/in/jephthah-kwame-lanor-6b9017262/))
+- Linkedin: [@Jephthah Kwame Lanor]([https://www.linkedin.com/in/jephthah-kwame-lanor-6b9017262/])
 
 ## License
 This project is open-source and available under the [MIT License](LICENSE).
