@@ -123,26 +123,34 @@ def fast_forward(driver, wait, target_page):
     except Exception as e:
         console.print(f"[yellow]JS fast-forward failed, falling back to manual clicks...[/yellow]")
     
-    current_page = 1
-    while current_page < target_page:
-        update_status("Fast-forwarding", f"Page {current_page} of {target_page}", "Silently skipping pages to reach checkpoint")
+    console.print(f"[yellow]JS fast-forward failed. Using rapid UI navigation to reach page {target_page}...[/yellow]")
+    while True:
+        update_status("Fast-forwarding", f"Target: Page {target_page}", "Rapidly skipping pages via the pager controls")
         try:
             table = wait_for_table(wait)
-            next_btn = driver.find_element(By.CSS_SELECTOR, "button.rgPageNext[title='Next Page']")
-            if "disabled" in next_btn.get_attribute("class"):
+            # Try to find the exact target page link in the pager
+            target_link = driver.find_elements(By.XPATH, f"//div[contains(@class, 'rgNumPart')]//a[text()='{target_page}' or span[text()='{target_page}']]")
+            if target_link:
+                driver.execute_script("arguments[0].click();", target_link[0])
+                wait.until(EC.staleness_of(table))
+                wait_for_table(wait)
+                console.print(f"[green]Successfully reached checkpoint page {target_page}![/green]")
+                break
+                
+            # If target not visible, click the 'Next Pages' (...) button to jump forward 10 pages
+            next_pages_btn = driver.find_elements(By.XPATH, "//div[contains(@class, 'rgNumPart')]//a[@title='Next Pages']")
+            if not next_pages_btn:
                 console.print("[red]Target page is beyond the last available page![/red]")
                 break
                 
-            driver.execute_script("arguments[0].scrollIntoView();", next_btn)
-            driver.execute_script("arguments[0].click();", next_btn)
+            driver.execute_script("arguments[0].click();", next_pages_btn[0])
             wait.until(EC.staleness_of(table))
-            current_page += 1
-            time.sleep(0.5)
+            time.sleep(0.1)
         except Exception as e:
-            console.print(f"[red]Error during fast-forward: {e}[/red]")
-            raise Exception("Fast-forward failed to reach target page. Aborting to prevent data corruption.")
+            console.print(f"[red]Error during rapid fast-forward: {e}[/red]")
+            raise Exception("Rapid fast-forward failed. Aborting to prevent data corruption.")
             
-    return current_page
+    return target_page
 
 def scrape_data(headless=False, force_restart=False):
     driver = setup_driver(headless)
